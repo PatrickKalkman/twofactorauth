@@ -13,12 +13,6 @@ const userRoutes = [
     path: "/api/user/register",
     handler: userController.register,
   },
-  {
-    name: "Logout",
-    method: "post",
-    path: "/api/user/logout",
-    handler: userController.logout,
-  },
 ];
 
 module.exports = userRoutes;

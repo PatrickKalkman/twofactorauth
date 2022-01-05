@@ -10,10 +10,13 @@
   "author": "Patrick Kalkman (patrick@simpletechture.nl)",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "fastify": "^3.25.3",
     "fastify-register-routes": "^1.1.2",
     "fastify-routes": "^3.1.0",
     "fastify-sensible": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "locallydb": "^0.0.9",
     "pino": "^7.6.2",
     "pino-pretty": "^7.3.0"
   },

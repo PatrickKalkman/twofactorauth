@@ -8,13 +8,7 @@ const fastify = require("fastify")();
 
 const log = require("./log");
 const config = require("./config/config");
-
-const pino = require("pino");
-const logger = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
+const db = require("./db/db");
 
 fastify.register(require("fastify-sensible"));
 
@@ -33,12 +27,15 @@ fastify.register((instance, opts, next) => {
 });
 
 server.start = function start() {
+  db.initialize();
   fastify.listen(config.httpPort, config.httpAddress, (err) => {
     if (!err) {
-      fastify.log.info(
+      log.info(
         `The http server is running in ${
           config.envName
-        } mode and listening on port ${fastify.server.address().port}`
+        } mode and listening on ${fastify.server.address().address} port ${
+          fastify.server.address().port
+        }`
       );
     } else {
       log.error(

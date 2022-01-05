@@ -15,7 +15,10 @@ environments.production = {
     level: process.env.LOG_LEVEL,
   },
   database: {
-    name: "workflow-db",
+    folder: "./db",
+  },
+  jwt: {
+    secret: "74cf7450-3ab5-4fe7-a505-6fffb187ce58",
   },
 };
 
