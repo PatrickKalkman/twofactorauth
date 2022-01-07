@@ -19,12 +19,7 @@ db.isValidUser = function (email, hashedPassword) {
 
 db.getUser = function (email) {
   const result = db.users.where({ email: email });
-  if (
-    typeof result != 'undefined' &&
-    typeof result.items != 'undefined' &&
-    result.items.length > 0 &&
-    typeof result.items[0].email !== 'undefined'
-  ) {
+  if (userExists(result)) {
     return result.items[0];
   }
   return undefined;
@@ -32,12 +27,7 @@ db.getUser = function (email) {
 
 db.getCleanedUser = function (email) {
   const result = db.users.where({ email: email });
-  if (
-    typeof result != 'undefined' &&
-    typeof result.items != 'undefined' &&
-    result.items.length > 0 &&
-    typeof result.items[0].email !== 'undefined'
-  ) {
+  if (userExists(result)) {
     const user = result.items[0];
     return {
       email: user.email,
@@ -55,10 +45,30 @@ db.addUser = function (email, hashedPassword) {
       email: email,
       password: hashedPassword,
       twoFactorEnabled: false,
-      twoFactorSecret: '',
+      twoFactorSecret: {},
       twoFactorStep: 0,
     });
   }
 };
+
+db.updateUserSecret = function (email, secret) {
+  const result = db.users.where({ email: email });
+  if (userExists(result)) {
+    const cid = result.items[0].cid;
+    db.users.update(cid, { twoFactorSecret: secret });
+  }
+};
+
+function userExists(result) {
+  if (
+    typeof result != 'undefined' &&
+    typeof result.items != 'undefined' &&
+    result.items.length > 0 &&
+    typeof result.items[0].email !== 'undefined'
+  ) {
+    return true;
+  }
+  return false;
+}
 
 module.exports = db;

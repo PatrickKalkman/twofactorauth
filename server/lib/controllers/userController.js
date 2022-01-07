@@ -2,6 +2,8 @@ const userController = {};
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 const log = require('../log');
 const db = require('../db/db');
@@ -38,6 +40,15 @@ userController.login = function (req, reply) {
 userController.enableTwoFactorAuthStep1 = function (req, reply) {
   tokenVerification.extractAndVerifyToken(req, (err, isValidToken, email) => {
     if (!err && isValidToken) {
+      const secret = speakeasy.generateSecret();
+      db.updateUserSecret(email, secret);
+      qrcode.toDataURL(secret.otpauth_url, function (err, qrImage) {
+        if (!err) {
+          reply.code(200).send({ qr: qrImage });
+        } else {
+          reply.internalServerError(err);
+        }
+      });
     } else {
       reply.unauthorized(err);
     }
