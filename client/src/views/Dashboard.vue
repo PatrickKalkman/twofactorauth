@@ -2,31 +2,33 @@
   <div>
     <h1>Dashboard</h1>
     <template v-if="!isLoading">
-      <EventCard v-for="event in events" :key="event.id" :event="event" />
+      <CustomerCard
+        v-for="customer in customers"
+        :key="customer.id"
+        :customer="customer"
+      />
     </template>
-    <p v-else>
-      Loading events
-    </p>
+    <p v-else>Loading customers</p>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import EventCard from '../components/EventCard'
+import axios from 'axios';
+import CustomerCard from '../components/CustomerCard';
 
 export default {
-  components: { EventCard },
-  data () {
+  components: { CustomerCard },
+  data() {
     return {
       isLoading: true,
-      events: []
-    }
+      customers: [],
+    };
   },
-  created () {
-    axios.get('//localhost:3000/dashboard').then(({ data }) => {
-      this.events = data.events.events
-      this.isLoading = false
-    })
-  }
-}
+  created() {
+    axios.get('//localhost:8090/api/customer').then(({ data }) => {
+      this.customers = data;
+      this.isLoading = false;
+    });
+  },
+};
 </script>
