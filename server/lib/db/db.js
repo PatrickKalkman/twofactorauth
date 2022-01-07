@@ -1,39 +1,63 @@
 /*
  * db wrapper
  */
-var locallydb = require("locallydb");
-const config = require("../config/config");
-const log = require("../log");
+var locallydb = require('locallydb');
+const config = require('../config/config');
+const log = require('../log');
 
 const db = {};
 
-db.initialize = function initialize() {
+db.initialize = function () {
   db.instance = new locallydb(config.database.folder);
-  db.users = db.instance.collection("users");
+  db.users = db.instance.collection('users');
 };
 
-db.isValidUser = function isValidUser(email, hashedPassword) {
+db.isValidUser = function (email, hashedPassword) {
   const user = db.getUser(email, hashedPassword);
   return user.email !== undefined;
 };
 
-db.getUser = function getUser(email) {
+db.getUser = function (email) {
   const result = db.users.where({ email: email });
   if (
-    typeof result != "undefined" &&
-    typeof result.items != "undefined" &&
+    typeof result != 'undefined' &&
+    typeof result.items != 'undefined' &&
     result.items.length > 0 &&
-    typeof result.items[0].email !== "undefined"
+    typeof result.items[0].email !== 'undefined'
   ) {
-    return { email: result.items[0].email, password: result.items[0].password };
+    return result.items[0];
   }
   return undefined;
 };
 
-db.addUser = function addUser(email, hashedPassword) {
+db.getCleanedUser = function (email) {
+  const result = db.users.where({ email: email });
+  if (
+    typeof result != 'undefined' &&
+    typeof result.items != 'undefined' &&
+    result.items.length > 0 &&
+    typeof result.items[0].email !== 'undefined'
+  ) {
+    const user = result.items[0];
+    return {
+      email: user.email,
+      password: user.password,
+    };
+  }
+  return undefined;
+};
+
+db.addUser = function (email, hashedPassword) {
   const user = db.getUser(email);
-  if (user.email === undefined) {
-    db.users.insert({ email: email, password: hashedPassword });
+  log.info(user);
+  if (typeof user === 'undefined' || typeof user.email === 'undefined') {
+    db.users.insert({
+      email: email,
+      password: hashedPassword,
+      twoFactorEnabled: false,
+      twoFactorSecret: '',
+      twoFactorStep: 0,
+    });
   }
 };
 

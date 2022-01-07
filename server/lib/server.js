@@ -4,12 +4,11 @@
 const registerRoutes = require("fastify-register-routes");
 const path = require("path");
 
-const fastify = require("fastify")();
-
 const log = require("./log");
 const config = require("./config/config");
 const db = require("./db/db");
 
+const fastify = require("fastify")();
 fastify.register(require("fastify-sensible"));
 
 const server = {};
