@@ -13,7 +13,6 @@ const tokenVerification = require('../authentication/tokenVerification');
 userController.register = function (req, reply) {
   if (isValidUserRequest(req)) {
     const hashedPassword = hashPassword(req.body.password);
-    log.info(req.body.email);
     db.addUser(req.body.email, hashedPassword);
     const user = { email: req.body.email };
     user.token = jwt.sign(user, config.jwt.secret);
@@ -34,7 +33,7 @@ userController.login = function (req, reply) {
       }
     }
   }
-  reply.unauthorized();
+  reply.unauthorized('Invalid login. Please try again.');
 };
 
 userController.enableTwoFactorAuthStep1 = function (req, reply) {
