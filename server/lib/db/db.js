@@ -59,6 +59,14 @@ db.updateUserSecret = function (email, secret) {
   }
 };
 
+db.enableTwoFactorAuthentication = function (email, secret) {
+  const result = db.users.where({ email: email });
+  if (userExists(result)) {
+    const cid = result.items[0].cid;
+    db.users.update(cid, { twoFactorEnabled: true });
+  }
+};
+
 function userExists(result) {
   if (
     typeof result != 'undefined' &&

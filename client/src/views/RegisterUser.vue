@@ -22,6 +22,7 @@ export default {
       email: '',
       password: '',
       error: '',
+      twoFactorEnabled: false,
     };
   },
   methods: {

@@ -8,12 +8,20 @@
     <button v-else type="button" class="logoutButton" @click="logout">
       Logout
     </button>
+    <router-link
+      v-if="loggedIn && !twoFactor"
+      class="button"
+      to="/twofactorregistration"
+    >
+      2-Factor
+    </router-link>
   </div>
 </template>
 
 <script>
 import { authComputed } from '../store/helpers.js';
 export default {
+  twofactor: false,
   computed: {
     ...authComputed,
   },

@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import Dashboard from '../views/Dashboard.vue';
 import RegisterUser from '../views/RegisterUser.vue';
 import LoginUser from '../views/LoginUser.vue';
+import TwoFactorRegistration from '../views/TwoFactorRegistration.vue';
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginUser,
+  },
+  {
+    path: '/twofactorregistration',
+    name: 'twofactorregistration',
+    component: TwoFactorRegistration,
   },
 ];
 

@@ -19,6 +19,12 @@ const userRoutes = [
     path: '/api/user/enabletwofactorstep1',
     handler: userController.enableTwoFactorAuthStep1,
   },
+  {
+    name: 'ValidateToken',
+    method: 'post',
+    path: '/api/user/validatetoken',
+    handler: userController.validateToken,
+  },
 ];
 
 module.exports = userRoutes;

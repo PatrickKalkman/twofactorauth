@@ -43,7 +43,7 @@ userController.enableTwoFactorAuthStep1 = function (req, reply) {
       db.updateUserSecret(email, secret);
       qrcode.toDataURL(secret.otpauth_url, function (err, qrImage) {
         if (!err) {
-          reply.code(200).send({ qr: qrImage });
+          reply.code(200).send({ qr: qrImage, secret: secret });
         } else {
           reply.internalServerError(err);
         }
@@ -54,9 +54,30 @@ userController.enableTwoFactorAuthStep1 = function (req, reply) {
   });
 };
 
-userController.enableTwoFactorAuthStep2 = function (req, reply) {};
-
-userController.enableTwoFactorAuthStep3 = function (req, reply) {};
+userController.validateToken = function (req, reply) {
+  tokenVerification.extractAndVerifyToken(req, (err, isValidJwtToken, email) => {
+    if (!err && isValidJwtToken) {
+      const user = db.getUser(email);
+      if (typeof user !== 'undefined') {
+        log.info(user);
+        const base32secret = user.twoFactorSecret.base32;
+        const userToken = req.body.token;
+        const verified = speakeasy.totp.verify({ secret: base32secret, encoding: 'base32', token: userToken });
+        if (verified) {
+          // User has successfully enable two factor authentication, update the user record
+          log.info('Successfully verified two factor, set to enabled');
+          db.enableTwoFactorAuthentication(email);
+          reply.code(200).send({ validated: true });
+        } else {
+          log.info('Token was not verified');
+          reply.code(200).send({ validated: false });
+        }
+      }
+    } else {
+      reply.unauthorized(err);
+    }
+  });
+};
 
 function isValidUserRequest(req) {
   return req.body && req.body.email && req.body.email.length > 0 && req.body.password && req.body.password.length > 0;
