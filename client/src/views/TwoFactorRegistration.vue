@@ -27,28 +27,28 @@ export default {
   },
   created: function () {
     this.$store
-      .dispatch('twofactorregister', {
+      .dispatch('twoFactorRegisterStep1', {
         email: this.email,
       })
       .then(() => {
         this.qr = this.$store.state.twofactor.qr;
       })
       .catch((err) => {
-        console.log(err);
-        //this.error = err.response;
+        this.validationMessage = err;
       });
   },
   methods: {
     validateToken() {
       this.$store
-        .dispatch('validateToken', {
-          email: this.email,
-          token: this.password,
+        .dispatch('twoFactorRegisterStep2', {
+          base32: this.$store.state.twofactor.secret.base32,
+          token: this.token,
         })
         .then(() => {
-          console.log(this.$store.state.twofactorenabled);
           if (!this.$store.state.twofactorenabled) {
             this.validationMessage = 'The token was invalid, please try again.';
+          } else {
+            this.$router.push({ name: 'dashboard' });
           }
         })
         .catch((err) => {
@@ -58,6 +58,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-</style>

@@ -20,6 +20,12 @@ const userRoutes = [
     handler: userController.enableTwoFactorAuthStep1,
   },
   {
+    name: 'EnableTwoFactorAuthStep2',
+    method: 'post',
+    path: '/api/user/enabletwofactorstep2',
+    handler: userController.enableTwoFactorAuthStep2,
+  },
+  {
     name: 'ValidateToken',
     method: 'post',
     path: '/api/user/validatetoken',

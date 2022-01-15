@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 
-const log = require('../log');
 const db = require('../db/db');
 const config = require('../config/config');
 const tokenVerification = require('../authentication/tokenVerification');
@@ -28,8 +27,9 @@ userController.login = function (req, reply) {
     if (typeof user !== 'undefined') {
       if (bcrypt.compareSync(req.body.password, user.password)) {
         delete user.password;
-        user.token = jwt.sign(user, config.jwt.secret);
-        reply.code(200).send(user);
+        const token = jwt.sign(user, config.jwt.secret);
+        const newUser = { ...user, token };
+        reply.code(200).send(newUser);
       }
     }
   }
@@ -37,10 +37,9 @@ userController.login = function (req, reply) {
 };
 
 userController.enableTwoFactorAuthStep1 = function (req, reply) {
-  tokenVerification.extractAndVerifyToken(req, (err, isValidToken, email) => {
+  tokenVerification.extractAndVerifyJwtToken(req, (err, isValidToken, email) => {
     if (!err && isValidToken) {
       const secret = speakeasy.generateSecret();
-      db.updateUserSecret(email, secret);
       qrcode.toDataURL(secret.otpauth_url, function (err, qrImage) {
         if (!err) {
           reply.code(200).send({ qr: qrImage, secret: secret });
@@ -54,22 +53,40 @@ userController.enableTwoFactorAuthStep1 = function (req, reply) {
   });
 };
 
-userController.validateToken = function (req, reply) {
-  tokenVerification.extractAndVerifyToken(req, (err, isValidJwtToken, email) => {
+userController.enableTwoFactorAuthStep2 = function (req, reply) {
+  tokenVerification.extractAndVerifyJwtToken(req, (err, isValidJwtToken, email) => {
     if (!err && isValidJwtToken) {
       const user = db.getUser(email);
       if (typeof user !== 'undefined') {
-        log.info(user);
-        const base32secret = user.twoFactorSecret.base32;
+        const base32secret = req.body.base32;
         const userToken = req.body.token;
         const verified = speakeasy.totp.verify({ secret: base32secret, encoding: 'base32', token: userToken });
         if (verified) {
-          // User has successfully enable two factor authentication, update the user record
-          log.info('Successfully verified two factor, set to enabled');
-          db.enableTwoFactorAuthentication(email);
+          db.enableTwoFactorAuthentication(email, base32secret);
           reply.code(200).send({ validated: true });
         } else {
-          log.info('Token was not verified');
+          reply.code(200).send({ validated: false });
+        }
+      }
+    } else {
+      reply.unauthorized(err);
+    }
+  });
+};
+
+userController.validateToken = function (req, reply) {
+  tokenVerification.extractAndVerifyJwtToken(req, (err, isValidJwtToken, email) => {
+    if (!err && isValidJwtToken) {
+      const user = db.getUser(email);
+      if (typeof user !== 'undefined') {
+        const verified = speakeasy.totp.verify({
+          secret: user.secret,
+          encoding: 'base32',
+          token: req.body.token,
+        });
+        if (verified) {
+          reply.code(200).send({ validated: true });
+        } else {
           reply.code(200).send({ validated: false });
         }
       }

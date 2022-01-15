@@ -13,8 +13,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-import CustomerCard from '../components/CustomerCard';
+import CustomerCard from '@/components/CustomerCard';
 
 export default {
   components: { CustomerCard },
@@ -25,10 +24,16 @@ export default {
     };
   },
   created() {
-    axios.get('//localhost:8090/api/customer').then(({ data }) => {
-      this.customers = data;
-      this.isLoading = false;
-    });
+    this.$store
+      .dispatch('getCustomers')
+      .then(() => {
+        this.isLoading = false;
+        this.customers = this.$store.state.customers;
+      })
+      .catch((err) => {
+        this.isLoading = false;
+        console.log(err);
+      });
   },
 };
 </script>

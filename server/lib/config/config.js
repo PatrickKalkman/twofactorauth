@@ -1,9 +1,3 @@
-/*
- * Create and export configuration variables used by the API
- *
- */
-const secrets = require('./secrets');
-
 // Container for all environments
 const environments = {};
 

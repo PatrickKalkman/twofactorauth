@@ -9,7 +9,7 @@
       Logout
     </button>
     <router-link
-      v-if="loggedIn && !twoFactor"
+      v-if="loggedIn && !twoFactorEnabled"
       class="button"
       to="/twofactorregistration"
     >
@@ -28,6 +28,7 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('logout');
+      location.reload();
     },
   },
 };

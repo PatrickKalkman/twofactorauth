@@ -2,6 +2,7 @@
 
 // Dependencies
 const registerRoutes = require('fastify-register-routes');
+
 const path = require('path');
 
 const log = require('./log');
@@ -10,12 +11,7 @@ const db = require('./db/db');
 
 const fastify = require('fastify')();
 fastify.register(require('fastify-sensible'));
-
-fastify.register(require('fastify-cors'), {
-  // put your options here
-});
-
-const server = {};
+fastify.register(require('fastify-cors'), {});
 
 // path with routes files
 const defaultPath = path.join(__dirname, './routes');
@@ -28,6 +24,8 @@ fastify.register((instance, opts, next) => {
   });
   next();
 });
+
+const server = {};
 
 server.start = function start() {
   db.initialize();

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const log = require('../log');
 
-tokenVerification.extractAndVerifyToken = function (request, cb) {
+tokenVerification.extractAndVerifyJwtToken = function (request, cb) {
   if (typeof request.headers.authorization === 'undefined') {
     cb(new Error('No token provided'), false);
   }

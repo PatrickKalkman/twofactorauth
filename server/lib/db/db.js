@@ -3,7 +3,6 @@
  */
 var locallydb = require('locallydb');
 const config = require('../config/config');
-const log = require('../log');
 
 const db = {};
 
@@ -32,6 +31,7 @@ db.getCleanedUser = function (email) {
     return {
       email: user.email,
       password: user.password,
+      twoFactorEnabled: user.twoFactorEnabled,
     };
   }
   return undefined;
@@ -39,14 +39,12 @@ db.getCleanedUser = function (email) {
 
 db.addUser = function (email, hashedPassword) {
   const user = db.getUser(email);
-  log.info(user);
   if (typeof user === 'undefined' || typeof user.email === 'undefined') {
     db.users.insert({
       email: email,
       password: hashedPassword,
       twoFactorEnabled: false,
-      twoFactorSecret: {},
-      twoFactorStep: 0,
+      twoFactorSecret: '',
     });
   }
 };
@@ -63,7 +61,7 @@ db.enableTwoFactorAuthentication = function (email, secret) {
   const result = db.users.where({ email: email });
   if (userExists(result)) {
     const cid = result.items[0].cid;
-    db.users.update(cid, { twoFactorEnabled: true });
+    db.users.update(cid, { twoFactorEnabled: true, secret: secret });
   }
 };
 
