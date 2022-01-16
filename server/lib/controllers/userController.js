@@ -79,16 +79,12 @@ userController.validateToken = function (req, reply) {
     if (!err && isValidJwtToken) {
       const user = db.getUser(email);
       if (typeof user !== 'undefined') {
-        const verified = speakeasy.totp.verify({
+        const validated = speakeasy.totp.verify({
           secret: user.secret,
           encoding: 'base32',
           token: req.body.token,
         });
-        if (verified) {
-          reply.code(200).send({ validated: true });
-        } else {
-          reply.code(200).send({ validated: false });
-        }
+        reply.code(200).send({ validated });
       }
     } else {
       reply.unauthorized(err);
